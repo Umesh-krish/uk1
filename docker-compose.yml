@@ -1,0 +1,69 @@
+# Full local stack: object store, message broker, Spark and Airflow.
+#
+# Not needed to read or demo the project. `make demo` runs the whole
+# transformation layer on DuckDB with no containers at all. Bring this up when
+# you want to exercise the Spark and Kafka paths as they run in production.
+
+services:
+  minio:
+    image: minio/minio:RELEASE.2024-06-13T22-53-53Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports: ["9000:9000", "9001:9001"]
+    volumes: ["minio-data:/data"]
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      retries: 5
+
+  kafka:
+    image: bitnami/kafka:3.7
+    environment:
+      KAFKA_CFG_NODE_ID: "1"
+      KAFKA_CFG_PROCESS_ROLES: "controller,broker"
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
+      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports: ["9092:9092"]
+
+  spark:
+    image: bitnami/spark:3.5
+    environment:
+      SPARK_MODE: master
+      S3_ENDPOINT: http://minio:9000
+      KAFKA_BOOTSTRAP: kafka:9092
+    ports: ["7077:7077", "8081:8080"]
+    volumes: [".:/opt/matchlake"]
+    depends_on: [minio, kafka]
+
+  spark-worker:
+    image: bitnami/spark:3.5
+    environment:
+      SPARK_MODE: worker
+      SPARK_MASTER_URL: spark://spark:7077
+      SPARK_WORKER_MEMORY: 2G
+      SPARK_WORKER_CORES: 2
+    volumes: [".:/opt/matchlake"]
+    depends_on: [spark]
+
+  airflow:
+    image: apache/airflow:2.9.3-python3.11
+    command: standalone
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/matchlake/airflow/dags
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      MATCHLAKE_DATA: /opt/matchlake/data
+      S3_ENDPOINT: http://minio:9000
+      KAFKA_BOOTSTRAP: kafka:9092
+      SPARK_MASTER: spark://spark:7077
+    ports: ["8080:8080"]
+    volumes: [".:/opt/matchlake"]
+    depends_on: [minio, kafka, spark]
+
+volumes:
+  minio-data:

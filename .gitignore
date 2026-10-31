@@ -1,0 +1,11 @@
+data/bronze/
+data/warehouse/
+data/_checkpoints/
+data/landing/
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+__pycache__/
+*.pyc
+.env
+.venv/
