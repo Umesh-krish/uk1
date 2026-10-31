@@ -8,7 +8,7 @@ from pathlib import Path
 
 import duckdb
 
-DB = Path(os.getenv("MATCHLAKE_DATA", "data")) / "warehouse" / "matchlake.duckdb"
+DB = Path(os.getenv("FOOTBALL_DATA", "data")) / "warehouse" / "football.duckdb"
 
 
 def main() -> None:

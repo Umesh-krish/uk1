@@ -1,12 +1,12 @@
 # Local development runs on DuckDB so the whole project is runnable on a laptop.
 # The `redshift` and `bigquery` targets are the same models, unchanged, against
 # the warehouses used in production.
-matchlake:
+football_pipeline:
   target: dev
   outputs:
     dev:
       type: duckdb
-      path: "{{ env_var('MATCHLAKE_DATA', '../data') }}/warehouse/matchlake.duckdb"
+      path: "{{ env_var('FOOTBALL_DATA', '../data') }}/warehouse/football.duckdb"
       threads: 4
 
     redshift:
@@ -16,14 +16,14 @@ matchlake:
       password: "{{ env_var('REDSHIFT_PASSWORD') }}"
       port: 5439
       dbname: "{{ env_var('REDSHIFT_DB', 'analytics') }}"
-      schema: matchlake
+      schema: football-data-pipeline
       threads: 8
 
     bigquery:
       type: bigquery
       method: service-account
       project: "{{ env_var('GCP_PROJECT') }}"
-      dataset: matchlake
+      dataset: football-data-pipeline
       keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS') }}"
       location: EU
       threads: 8

@@ -1,4 +1,4 @@
-# matchlake
+# football-data-pipeline
 
 A batch and streaming lakehouse for football match data, built with Spark, Kafka, Airflow and dbt.
 
@@ -68,8 +68,8 @@ That generates three seasons of source data, builds bronze, runs the models and 
 | `dbt/models/staging/` | Typing and renaming only |
 | `dbt/models/marts/` | Star schema: two dimensions, three facts, one gold aggregate |
 | `dbt/tests/` | Three custom reconciliation tests |
-| `airflow/dags/matchlake_batch.py` | Nightly extract to bronze to dbt to test |
-| `airflow/dags/matchlake_freshness.py` | Stream lag and row-count guards, every 30 minutes |
+| `airflow/dags/football_batch.py` | Nightly extract to bronze to dbt to test |
+| `airflow/dags/football_freshness.py` | Stream lag and row-count guards, every 30 minutes |
 | `scripts/build_bronze_local.py` | DuckDB stand-in for the Spark bronze job, for laptops |
 
 ## The data model
@@ -96,7 +96,7 @@ Both fact tables are incremental with `delete+insert` on the season, so a nightl
 cp .env.example .env
 make up          # MinIO, Kafka, Spark master + worker, Airflow
 make stream      # replay five matches into Kafka
-open http://localhost:8080   # Airflow, trigger matchlake_batch
+open http://localhost:8080   # Airflow, trigger football_batch
 ```
 
 `make demo` and `make up` build the same models. The difference is only which engine writes bronze.
@@ -128,7 +128,7 @@ The local stack is chosen so every component has a direct managed equivalent. No
 
 **`dbt test` is its own Airflow task.** A failed test should leave the built tables in place for inspection and fail the DAG loudly, not roll the models back.
 
-**Source paths come from `MATCHLAKE_DATA`, not a relative path.** Airflow runs tasks from a different working directory than a developer does, and a relative source path silently resolves to nothing.
+**Source paths come from `FOOTBALL_DATA`, not a relative path.** Airflow runs tasks from a different working directory than a developer does, and a relative source path silently resolves to nothing.
 
 ## License
 

@@ -10,7 +10,7 @@ Design notes that matter in review:
   A failed test should leave the built tables in place for inspection and fail
   the DAG loudly, not roll the models back.
 * The streaming path is deliberately not orchestrated here. It runs
-  continuously; Airflow only checks that it is alive (see matchlake_quality).
+  continuously; Airflow only checks that it is alive (see football_freshness).
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.trigger_rule import TriggerRule
 
-PROJECT_ROOT = "/opt/matchlake"
+PROJECT_ROOT = "/opt/football-data-pipeline"
 DBT_DIR = f"{PROJECT_ROOT}/dbt"
 SPARK_SUBMIT = "spark-submit --master ${SPARK_MASTER:-local[*]}"
 
@@ -42,14 +42,14 @@ def current_season(logical_date: pendulum.DateTime) -> str:
 
 
 with DAG(
-    dag_id="matchlake_batch",
+    dag_id="football_batch",
     description="Nightly match lakehouse refresh: land raw files, build bronze, rebuild the warehouse",
     schedule="0 3 * * *",
     start_date=pendulum.datetime(2025, 8, 1, tz="UTC"),
     catchup=False,
     max_active_runs=1,
     default_args=DEFAULT_ARGS,
-    tags=["matchlake", "batch", "spark", "dbt"],
+    tags=["football-data-pipeline", "batch", "spark", "dbt"],
 ) as dag:
 
     start = EmptyOperator(task_id="start")

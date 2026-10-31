@@ -37,7 +37,7 @@ services:
       S3_ENDPOINT: http://minio:9000
       KAFKA_BOOTSTRAP: kafka:9092
     ports: ["7077:7077", "8081:8080"]
-    volumes: [".:/opt/matchlake"]
+    volumes: [".:/opt/football-data-pipeline"]
     depends_on: [minio, kafka]
 
   spark-worker:
@@ -47,7 +47,7 @@ services:
       SPARK_MASTER_URL: spark://spark:7077
       SPARK_WORKER_MEMORY: 2G
       SPARK_WORKER_CORES: 2
-    volumes: [".:/opt/matchlake"]
+    volumes: [".:/opt/football-data-pipeline"]
     depends_on: [spark]
 
   airflow:
@@ -55,14 +55,14 @@ services:
     command: standalone
     environment:
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
-      AIRFLOW__CORE__DAGS_FOLDER: /opt/matchlake/airflow/dags
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/football-data-pipeline/airflow/dags
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      MATCHLAKE_DATA: /opt/matchlake/data
+      FOOTBALL_DATA: /opt/football-data-pipeline/data
       S3_ENDPOINT: http://minio:9000
       KAFKA_BOOTSTRAP: kafka:9092
       SPARK_MASTER: spark://spark:7077
     ports: ["8080:8080"]
-    volumes: [".:/opt/matchlake"]
+    volumes: [".:/opt/football-data-pipeline"]
     depends_on: [minio, kafka, spark]
 
 volumes:

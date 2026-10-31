@@ -60,7 +60,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--seasons", nargs="*", default=["2023-24", "2024-25", "2025-26"])
     ap.add_argument("--datasets", nargs="*", default=["matches", "events"])
-    ap.add_argument("--bucket", default=os.getenv("LAKE_BUCKET", "matchlake"))
+    ap.add_argument("--bucket", default=os.getenv("LAKE_BUCKET", "football-data-pipeline"))
     ap.add_argument("--local-root", default="data/landing")
     ap.add_argument("--remote", action="store_true", help="Fetch from SOURCE_BASE_URL instead of the local root")
     args = ap.parse_args()

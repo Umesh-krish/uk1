@@ -1,7 +1,7 @@
-name: matchlake
+name: football_pipeline
 version: "1.0.0"
 config-version: 2
-profile: matchlake
+profile: football_pipeline
 
 model-paths: ["models"]
 macro-paths: ["macros"]
@@ -14,7 +14,7 @@ vars:
   earliest_season: "2023-24"
 
 models:
-  matchlake:
+  football_pipeline:
     staging:
       +materialized: view
       +schema: staging

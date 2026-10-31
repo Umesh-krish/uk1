@@ -1,6 +1,6 @@
 # Everything below `demo` runs with no containers and no cloud account.
 .DEFAULT_GOAL := help
-export MATCHLAKE_DATA := $(CURDIR)/data
+export FOOTBALL_DATA := $(CURDIR)/data
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -15,7 +15,7 @@ bronze:  ## Build the bronze Parquet layer (DuckDB, no Spark needed)
 	python scripts/build_bronze_local.py
 
 warehouse:  ## Run the dbt models
-	@mkdir -p "$(MATCHLAKE_DATA)/warehouse"
+	@mkdir -p "$(FOOTBALL_DATA)/warehouse"
 	cd dbt && dbt run --profiles-dir . --target $${DBT_TARGET:-dev}
 
 test:  ## Run the dbt test suite

@@ -39,7 +39,7 @@ EVENT_JSON_SCHEMA = StructType(
 
 def build_session() -> SparkSession:
     return (
-        SparkSession.builder.appName("matchlake-stream-events")
+        SparkSession.builder.appName("football-stream-events")
         .config("spark.sql.shuffle.partitions", os.getenv("SHUFFLE_PARTITIONS", "4"))
         .config("spark.sql.streaming.schemaInference", "false")
         .getOrCreate()

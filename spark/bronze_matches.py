@@ -151,7 +151,7 @@ def main() -> None:
     ap.add_argument("--bronze", default=os.getenv("BRONZE_URI", "data/bronze"))
     args = ap.parse_args()
 
-    spark = build_session(f"matchlake-bronze-{args.dataset}")
+    spark = build_session(f"football-bronze-{args.dataset}")
     try:
         rows = load(spark, args.dataset, args.season, args.landing, args.bronze)
         if rows == 0:

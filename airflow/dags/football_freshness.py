@@ -29,14 +29,14 @@ FRESHNESS_SLA_MINUTES = {
 
 
 with DAG(
-    dag_id="matchlake_freshness",
+    dag_id="football_freshness",
     description="Checks lake freshness and streaming lag; alerts within the half hour",
     schedule="*/30 * * * *",
     start_date=pendulum.datetime(2025, 8, 1, tz="UTC"),
     catchup=False,
     max_active_runs=1,
     default_args=DEFAULT_ARGS,
-    tags=["matchlake", "quality", "monitoring"],
+    tags=["football-data-pipeline", "quality", "monitoring"],
 ) as dag:
 
     @task
@@ -53,7 +53,7 @@ with DAG(
                     max(_ingested_at)                                       as newest,
                     date_diff('minute', max(_ingested_at), current_timestamp) as lag_minutes,
                     count(*)                                                as row_count
-                from read_parquet('/opt/matchlake/data/bronze/events_stream/**/*.parquet',
+                from read_parquet('/opt/football-data-pipeline/data/bronze/events_stream/**/*.parquet',
                                   hive_partitioning = true)
                 """
             ).fetchone()
@@ -74,7 +74,7 @@ with DAG(
         """Guards against a silent truncation: a fact table should never shrink."""
         import duckdb
 
-        con = duckdb.connect("/opt/matchlake/data/warehouse/matchlake.duckdb", read_only=True)
+        con = duckdb.connect("/opt/football-data-pipeline/data/warehouse/football.duckdb", read_only=True)
         try:
             counts = {
                 table: con.execute(f"select count(*) from marts.{table}").fetchone()[0]
