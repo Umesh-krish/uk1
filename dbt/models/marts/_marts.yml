@@ -1,0 +1,84 @@
+version: 2
+
+models:
+  - name: dim_team
+    description: Team dimension, one row per club.
+    columns:
+      - name: team_key
+        tests: [unique, not_null]
+      - name: team_code
+        tests: [unique, not_null]
+
+  - name: dim_season
+    description: Season dimension, derived from the matches present.
+    columns:
+      - name: season_key
+        tests: [unique, not_null]
+      - name: season
+        tests: [unique, not_null]
+
+  - name: fct_match
+    description: Match fact. Grain is one row per match.
+    columns:
+      - name: match_id
+        tests: [unique, not_null]
+      - name: home_team_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_team')
+              field: team_key
+      - name: away_team_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_team')
+              field: team_key
+      - name: season_key
+        tests:
+          - relationships:
+              to: ref('dim_season')
+              field: season_key
+      - name: result
+        tests:
+          - accepted_values:
+              values: [home_win, away_win, draw]
+
+  - name: fct_team_match
+    description: Team-perspective fact. Grain is one row per team per match.
+    columns:
+      - name: team_match_key
+        tests: [unique, not_null]
+      - name: match_id
+        tests:
+          - relationships:
+              to: ref('fct_match')
+              field: match_id
+      - name: venue
+        tests:
+          - accepted_values:
+              values: [home, away]
+      - name: points
+        tests:
+          - accepted_values:
+              values: [0, 1, 3]
+
+  - name: fct_match_event
+    description: Event fact. Grain is one row per in-match event.
+    columns:
+      - name: event_id
+        tests: [unique, not_null]
+      - name: match_id
+        tests: [not_null]
+      - name: match_phase
+        tests:
+          - accepted_values:
+              values: [first_half, second_half, stoppage]
+
+  - name: agg_team_season_form
+    description: Gold league table, one row per team per season.
+    columns:
+      - name: league_position
+        tests: [not_null]
+      - name: matches_played
+        tests: [not_null]

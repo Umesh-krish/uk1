@@ -1,0 +1,23 @@
+name: matchlake
+version: "1.0.0"
+config-version: 2
+profile: matchlake
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  # Seasons older than this are excluded from the incremental fact refresh.
+  earliest_season: "2023-24"
+
+models:
+  matchlake:
+    staging:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: marts

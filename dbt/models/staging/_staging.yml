@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: stg_matches
+    description: Typed match rows, one per match.
+    columns:
+      - name: match_id
+        description: Natural key from the source feed.
+        tests: [unique, not_null]
+      - name: season
+        tests: [not_null]
+      - name: home_goals
+        tests: [not_null]
+      - name: away_goals
+        tests: [not_null]
+
+  - name: stg_match_events
+    description: Typed event rows, one per event.
+    columns:
+      - name: event_id
+        tests: [unique, not_null]
+      - name: match_id
+        tests: [not_null]
+      - name: event_type
+        tests:
+          - accepted_values:
+              values: [shot, shot_on_target, goal, corner, foul, yellow_card, red_card, substitution]
+
+  - name: stg_teams
+    columns:
+      - name: team_code
+        tests: [unique, not_null]

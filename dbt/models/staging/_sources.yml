@@ -1,0 +1,28 @@
+version: 2
+
+sources:
+  - name: bronze
+    description: >
+      Parquet written by the Spark bronze jobs (or scripts/build_bronze_local.py
+      on a laptop). On DuckDB these resolve to direct Parquet reads; the same
+      models run unchanged against Redshift Spectrum external tables or
+      BigQuery external tables over GCS by switching the dbt target.
+
+      The lake root comes from MATCHLAKE_DATA rather than a relative path,
+      because Airflow runs tasks from a different working directory than a
+      developer does and a relative source path silently resolves to nothing.
+    meta:
+      written_by: spark/bronze_matches.py
+    tables:
+      - name: matches
+        description: One row per match, as landed.
+        meta:
+          external_location: "read_parquet('{{ env_var('MATCHLAKE_DATA', '../data') }}/bronze/matches/**/*.parquet', hive_partitioning = true)"
+      - name: events
+        description: One row per in-match event.
+        meta:
+          external_location: "read_parquet('{{ env_var('MATCHLAKE_DATA', '../data') }}/bronze/events/**/*.parquet', hive_partitioning = true)"
+      - name: teams
+        description: Team reference data, unpartitioned.
+        meta:
+          external_location: "read_parquet('{{ env_var('MATCHLAKE_DATA', '../data') }}/bronze/teams/teams.parquet')"

@@ -1,0 +1,29 @@
+# Local development runs on DuckDB so the whole project is runnable on a laptop.
+# The `redshift` and `bigquery` targets are the same models, unchanged, against
+# the warehouses used in production.
+matchlake:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('MATCHLAKE_DATA', '../data') }}/warehouse/matchlake.duckdb"
+      threads: 4
+
+    redshift:
+      type: redshift
+      host: "{{ env_var('REDSHIFT_HOST') }}"
+      user: "{{ env_var('REDSHIFT_USER') }}"
+      password: "{{ env_var('REDSHIFT_PASSWORD') }}"
+      port: 5439
+      dbname: "{{ env_var('REDSHIFT_DB', 'analytics') }}"
+      schema: matchlake
+      threads: 8
+
+    bigquery:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('GCP_PROJECT') }}"
+      dataset: matchlake
+      keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS') }}"
+      location: EU
+      threads: 8
